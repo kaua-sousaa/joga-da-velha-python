@@ -13,7 +13,7 @@ vetor = [0,
 
 def jogo_da_velha(vetor):  
     n = int(input("quantos jogos deseja: "))
-    opcao = int(input("1. Jogador x Jogador\n2.Jogador x Aleatorio\n3.Aleatorio x Aleatorio\n4.jogador x invencivel\n5.Aleatorio x invencivel\n6.invecivel x invecivel\nopcao: "))
+    opcao = int(input("1. Jogador x Jogador\n2.Jogador x Aleatorio\n3.Aleatorio x Aleatorio\n4.jogador x invencivel\n5.Invencivel x aleatório\n6.ALeatorio x invecivel\nopcao: "))
     
     for _ in range(n):
         vetor[0] = 0
@@ -60,13 +60,35 @@ def jogo_da_velha(vetor):
                     jogador = 'O'
             
             elif opcao == 6:
-                print("deu nao")
+                if(vetor[0]%2 !=0):
+                    jogador = jogador_invencivel(vetor)
+                else:
+                    jogada_aleatoria(vetor, 'X')
+                    jogador = 'X'
 
             vetor[0]+= 1     
-            print("jogador", jogador)
+            #print("jogador", jogador)
             jogar = vencedor(vetor, jogador)
-            tabuleiro(vetor)
+            #tabuleiro(vetor)
         vetor[10]+=1
+
+        #Criar arquivos CSV
+        if (opcao == 3):
+            with open("aleatorio_aleatorio.csv", 'a') as f:
+                for item in vetor:
+                    f.write(f"{item};")
+                f.write("\n")
+        elif (opcao == 5):
+            with open("invencivel_aleatorio.csv", 'a') as f:
+                for item in vetor:
+                    f.write(f"{item};")
+                f.write("\n")
+        elif (opcao == 6):
+            with open("aleatorio_invencivel.csv", 'a') as f:
+                for item in vetor:
+                    f.write(f"{item};")
+                f.write("\n")
+        
     print("\n fim do jogo: ",vetor)
     #grafico(vetor)
 
@@ -81,7 +103,7 @@ def vencedor(vetor, jogador, simulacao=False):
         or (vetor[1] ==  vetor[5] == vetor[9] ==jogador) #diagonal 1
         or (vetor[3] ==  vetor[5] == vetor[7] ==jogador)): #diagonal 2
         if not simulacao:
-            print(f"O jogador {jogador} ganhou")
+            #print(f"O jogador {jogador} ganhou")
             vetor[11] = jogador
             if jogador == 'X':                   
                 vetor[12]+=1 #Mais uma vitoria para jogador X
@@ -93,14 +115,14 @@ def vencedor(vetor, jogador, simulacao=False):
     #9 jogadas, então acaba e dá velha
     if (vetor[0] == 9):
         if not simulacao:
-            print("Deu velha")
+            #print("Deu velha")
             vetor[13]+= 1 #deu velha    
         return False 
     return True     
 
 
 def jogador_invencivel(vetor):
-    if vetor[0] == 0:  
+    if vetor[0] == 0:
         vetor[1] = 'O'
         return True
 
@@ -109,6 +131,14 @@ def jogador_invencivel(vetor):
             if vetor[i] == -1:
                 vetor[i] = 'O'
                 return True
+            
+    # verifica se O poDe GANHAR
+    for i in range(1, 10):
+        if vetor[i] == -1:
+            vetor[i] = 'O'
+            if not vencedor(vetor, 'O', simulacao=True):
+                return True  # 'O' ganha
+            vetor[i] = -1 
 
     # Verifica se X pode ganhar
     for i in range(1, 10):
@@ -119,14 +149,11 @@ def jogador_invencivel(vetor):
                 return True
             vetor[i] = -1  #restaura por conta da simulacao
 
-    # verifica se O poDe GANHAR
-    for i in range(1, 10):
-        if vetor[i] == -1:
-            vetor[i] = 'O'
-            if not vencedor(vetor, 'O', simulacao=True):
-                return True  # 'O' ganha
-            vetor[i] = -1 
-
+    if vetor[0] == 4:
+        if(vetor[5] == -1):
+            vetor[5] = 'O'
+            return True
+    
     cantos = [1, 3, 7, 9] #priorizar cantos
     for i in cantos:
         if vetor[i] == -1:
@@ -135,6 +162,7 @@ def jogador_invencivel(vetor):
     
     #n tem jogada pra ganhar/bloq
     jogada_aleatoria(vetor, 'O')
+
 
 def jogada_aleatoria(vetor, jogador):
     posicao_livre = []
