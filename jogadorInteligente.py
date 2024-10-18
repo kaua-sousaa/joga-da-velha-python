@@ -21,7 +21,7 @@ vetorJogos = [] #guardar cada jogada aqui
 
 def jogo_da_velha(vetor):
     quantidade_jogos = int(input("Quantos jogos deseja ? "))
-    opcao = int(input("1. Random x Random\n2. Inteligente x Random\nOpcao: "))
+    opcao = int(input("1. Random x Random\n2. Inteligente x Random\n3. Random x Inteligente\nOpcao: "))
     for _ in range(quantidade_jogos):
         jogar = True
         vetor[0] = 0
@@ -46,7 +46,17 @@ def jogo_da_velha(vetor):
                     posicao = jogada_aleatoria(vetor)
                     vetor[posicao] = -3
                     jogador = -3
-                
+            if (opcao == 3):
+                if (vetor[0] % 2 != 0):      
+                    if jogador_inteligente(vetorJogos, vetor[0]):
+                        posicao = jogador_inteligente(vetorJogos, vetor[0])
+                    vetor[posicao] = 1
+                    jogador = 1
+                else:
+                    posicao = jogada_aleatoria(vetor)
+                    vetor[posicao] = -3
+                    jogador = -3
+    
             vetor[16] = posicao
             vetor[17] = jogador
             
@@ -59,20 +69,20 @@ def jogo_da_velha(vetor):
             for jogo in vetorJogos:
                 jogo[11]+=3
         if (jogar == False and vetor[12] == -3): # jogador O
-            for jogo in vetorJogos:
+            for jogo in vetorJogos:           
                 jogo[11]-=2 
         if (jogar == False and vetor[12] == -2): #VELHA
-            for jogo in vetorJogos:
+            for jogo in vetorJogos:               
                 jogo[11]-=1   
         
                      
         vetor[10]+=1 #+1 jogo
         #print("+1 jogo")
-        if (opcao == 2):
-            with open("inteligente_aleatorio11.csv", 'a') as f:
+        """ if (opcao == 3):
+            with open("aleatorio_inteligente.csv", 'a') as f:
                 for item in vetor:
                     f.write(f"{item};")
-                f.write("\n")
+                f.write("\n") """
 
 def jogador_inteligente(vetorJogos, jogada):
     #Jogada 1: Se na jogada 1 o vetor na posicao 11 tive rank, lá que vai ser e assim por diante
@@ -101,7 +111,6 @@ def jogador_inteligente(vetorJogos, jogada):
 
             if encontrou_maior == False:
                 melhor_posicao = jogada_aleatoria(jogo)
-
 
     return melhor_posicao
 
@@ -151,9 +160,9 @@ jogo_da_velha(vetor)
 
 
 
-""" for jogo in vetorJogos:
+for jogo in vetorJogos:
     print(jogo)
- """
+ 
 print("-----")
 print(vetor)
 
