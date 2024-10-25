@@ -23,7 +23,7 @@ todosJogos = []
 
 def jogo_da_velha(vetorAtual):
     quantidade_jogos = int(input("Quantos jogos deseja ? "))
-    opcao = int(input("1. Random x Random\n2. Inteligente x Random\n3. Random x Inteligente\n4. Invencivel x Random\n5. Invencivel x Inteligente\nOpcao: "))
+    opcao = int(input("1. Random x Random\n2. Inteligente x Random\n3. Random x Inteligente\n4. Invencivel x Random\n5. Inteligente x Invencivel\n6. Invencivel x Inteligente\nOpcao: "))
     dados_para_escrever = []
     
     for _ in range(quantidade_jogos):
@@ -63,16 +63,25 @@ def jogo_da_velha(vetorAtual):
                     jogador = 1
             if (opcao == 4):
                 if (vetorAtual[0] % 2 == 0):
-                    posicao = jogador_invencivel(vetorAtual)
-                    vetorAtual[posicao] = 2
-                    jogador = 2
-                else:
-                    posicao = jogada_aleatoria(vetorAtual)
+                    posicao = jogador_invencivel(vetorAtual, 2)
                     vetorAtual[posicao] = 1
                     jogador = 1
+                else:
+                    posicao = jogada_aleatoria(vetorAtual)
+                    vetorAtual[posicao] = 2
+                    jogador = 2
             if (opcao == 5):
                 if (vetorAtual[0] % 2 == 0):
-                    posicao = jogador_invencivel(vetorAtual)
+                    posicao, jogoNOVO, idJogo = jogador_inteligente(todosJogos, vetorAtual, jogoNOVO)
+                    vetorAtual[posicao] = 1
+                    jogador = 1
+                else:
+                    posicao = jogador_invencivel(vetorAtual, 2)
+                    vetorAtual[posicao] = 2
+                    jogador = 2
+            if (opcao == 6):
+                if (vetorAtual[0] % 2 == 0):
+                    posicao = jogador_invencivel(vetorAtual, 2)
                     vetorAtual[posicao] = 2
                     jogador = 2
                 else:
@@ -95,27 +104,29 @@ def jogo_da_velha(vetorAtual):
         if (vetorAtual[12] == 1):
             rank = 1
         elif(vetorAtual[12] == 2):
-            rank = -1
+            rank = -20
         else:
-            rank = 0
+            rank = 1
 
         if not jogoNOVO:
             novo_jogo = [len(todosJogos) + 1, rank ,vetorJogadas.copy()]
             inserir_ordenado(todosJogos, novo_jogo)
-            """ print("Lista ordenada por rank:")
-            for jogo in todosJogos:
-                print(f"ID: {jogo[0]}, Rank: {jogo[1]}") """
+            
         else:
             for i, jogo in enumerate(todosJogos):
                 if (jogo[0] == idJogo):
-                    jogo[1]+=rank
-                    jogo_atualizado = todosJogos.pop(i)
-                    inserir_ordenado(todosJogos, jogo_atualizado)
+                    if (rank == -20):
+                        jogo[1]= rank
+                        jogo_atualizado = todosJogos.pop(i)
+                        todosJogos.append(jogo_atualizado)
+                        break
+                    else:
+                        jogo[1]+=rank
+                        jogo_atualizado = todosJogos.pop(i)
+                        inserir_ordenado(todosJogos, jogo_atualizado)
                     break
-                        
-        if opcao == 3:
-            dados_para_escrever.append(";".join(map(str, vetorAtual)))
-
+                         
+        dados_para_escrever.append(";".join(map(str, vetorAtual)))
     
     with open("teste.csv", 'w') as f:
         for linha in dados_para_escrever:
@@ -155,7 +166,6 @@ def jogador_inteligente(todosJogos, vetorAtual, jogoNOVO):
     if (vetorAtual[10] == 0):
         melhor_posicao = jogada_aleatoria(vetorAtual)
         return melhor_posicao, False, None #primeiro jogo entao nao há jogos para comparar
-    
     
     #Varrendo os vetores para achar o melhor rank
     for ranks in todosJogos:
@@ -220,11 +230,13 @@ def jogada_aleatoria(vetorAtual):
         if vetorAtual[posicao] == -1:
             return posicao
 
-def jogador_invencivel(vetor):
-    if vetor[0] == 0:
-        return 1
+def jogador_invencivel(vetor, jogador):
+    adversario = 2 if jogador == 1 else 1
 
-    if vetor[0] == 2:
+    if vetor[0] == 0 and jogador == 1:
+        return 1
+        
+    if vetor[0] == 2 and jogador == 1:
         for i in [3, 7, 9]:
             if vetor[i] == -1:
                 return i #retornando posicao    
@@ -232,22 +244,21 @@ def jogador_invencivel(vetor):
     # verifica se O poDe GANHAR
     for i in range(1, 10):
         if vetor[i] == -1:
-            vetor[i] = 2
-            if not vencedor(vetor, 2, simulacao=True):
-                return i  # 'O' ganha
+            vetor[i] = jogador
+            if not vencedor(vetor, jogador, simulacao=True):
+                return i  # '1' ganha
             vetor[i] = -1 
 
     # Verifica se X pode ganhar
     for i in range(1, 10):
         if vetor[i] == -1:
-            vetor[i] = 1  # Simula jogadas
-            if not vencedor(vetor, 1, simulacao=True):  # Se x vencer    
-                return i# bloqueia o X
+            vetor[i] = adversario  # Simula jogadas
+            if not vencedor(vetor, adversario, simulacao=True):  # Se x vencer    
+                return i# bloqueia o 2
             vetor[i] = -1  #restaura por conta da simulacao
 
-    if vetor[0] == 4:
-        if(vetor[5] == -1):
-            return 5
+    if vetor[0] == 4 and vetor[5] == -1:
+        return 5
     
     cantos = [1, 3, 7, 9] #priorizar cantos
     for i in cantos:
@@ -281,12 +292,8 @@ print("rank: " ,jogo[1])
 for i in vetor:
     print(i)
 
-""" for index, jogo in enumerate(TUDOTESTE):
-    print(f"### Jogo {index + 1}:")
-    print(f"- Rank: {jogo[1]}")
-    
-    for jogada_num, jogada in enumerate(jogo[2]):
-        jogada_formatada = ', '.join(map(str, jogada))
-        print(f"   {jogada_num + 1}. [{jogada_formatada}]")
-    print("-"*50) """
+print("Lista ordenada por rank:")
+for jogo in todosJogos:
+    print(f"ID: {jogo[0]}, Rank: {jogo[1]}")
+            
  
