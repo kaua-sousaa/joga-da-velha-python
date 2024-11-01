@@ -19,13 +19,13 @@ ranks = [[0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0],
          [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0],
          [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0]]
 
-rank = [0,0,0,0,0,0,0,0,0]
+
 #guardar cada jogada aqui
 todosJogos = []
 
 def jogo_da_velha(vetorAtual):
     quantidade_jogos = int(input("Quantos jogos deseja ? "))
-    opcao = int(input("1. Inteligente x Inteligente\n2. Inteligente x Random\n3. Random x Inteligente\n4. Invencivel x Random\n5. Inteligente x Invencivel\n6. Invencivel x Inteligente\nOpcao: "))
+    opcao = int(input("1. Inteligente x Inteligente\n2. Inteligente x Random\n3. Random x Inteligente\n4. Inteligente x Invencivel\n5. Invencivel x Inteligente \nOpcao: "))
     dados_para_escrever = []
     
     for _ in range(quantidade_jogos):
@@ -34,7 +34,6 @@ def jogo_da_velha(vetorAtual):
         vetorAtual[1:10] = [-1]*9
         vetorJogadas = []
         while (jogar == True):
-            #começar os vetorJogos
             if (opcao == 1):
                 if (vetorAtual[0] % 2 == 0):   
                     posicao = jogador_inteligente(vetorAtual, ranks)    
@@ -61,18 +60,8 @@ def jogo_da_velha(vetorAtual):
                 else:
                     posicao = jogador_inteligente(vetorAtual, ranks)
                     vetorAtual[posicao] = 1
-                    jogador = 1
-                    
+                    jogador = 1                  
             if (opcao == 4):
-                if (vetorAtual[0] % 2 == 0):
-                    posicao = jogador_invencivel(vetorAtual, 2)
-                    vetorAtual[posicao] = 1
-                    jogador = 1
-                else:
-                    posicao = jogada_aleatoria(vetorAtual)
-                    vetorAtual[posicao] = 2
-                    jogador = 2
-            if (opcao == 5):
                 if (vetorAtual[0] % 2 == 0):
                     posicao = jogador_inteligente(vetorAtual, ranks)
                     vetorAtual[posicao] = 1
@@ -81,7 +70,7 @@ def jogo_da_velha(vetorAtual):
                     posicao = jogador_invencivel(vetorAtual, 2)
                     vetorAtual[posicao] = 2
                     jogador = 2
-            if (opcao == 6):
+            if (opcao == 5):
                 if (vetorAtual[0] % 2 == 0):
                     posicao = jogador_invencivel(vetorAtual, 2)
                     vetorAtual[posicao] = 2
@@ -93,36 +82,69 @@ def jogo_da_velha(vetorAtual):
             
             jogar = vencedor(vetorAtual, jogador)    
             vetorJogadas.append([vetorAtual.copy(), posicao]) #JOGADA E POSICAO
-            
             vetorAtual[0]+=1
 
-        todosJogos.append(vetorJogadas)
-
-        atualizar_rank(vetorAtual, vetorJogadas, opcao)            
-                      
+        atualizar_rank(vetorAtual, vetorJogadas, opcao)                             
         vetorAtual[11]+=1 #+1 partida
         dados_para_escrever.append(";".join(map(str, vetorAtual)))
     
-    with open("teste.csv", 'w') as f:
+    if opcao == 1:
+        nomeCsv = 'inteligente_inteligente.csv'
+    elif opcao ==2:
+        nomeCsv = 'inteligente_aleatorio.csv'
+    elif opcao ==3:
+        nomeCsv = 'aleatorio_inteligente.csv'
+    elif opcao ==4:
+        nomeCsv = 'inteligente_invencivel.csv'
+    elif opcao ==5:
+        nomeCsv = 'invencivel_inteligente.csv'
+
+    with open(nomeCsv, 'w') as f:
         for linha in dados_para_escrever:
             f.write(linha + "\n")
 
 
 def atualizar_rank(vetorAtual, vetorJogadas, opcao):
+    # print(vetorAtual)
     for i, jogadas in enumerate(vetorJogadas):
-            if opcao ==2:
+            posicao_jogada = jogadas[1]-1
+            if opcao ==2 or opcao == 4:
                 if (i%2 ==0):
-                    posicao_jogada = jogadas[1]-1
                     if vetorAtual[10] == 1:
-                        ranks[i][posicao_jogada] += 2
+                        ranks[i][posicao_jogada] += 1
                     elif vetorAtual[10] == 2:
                         ranks[i][posicao_jogada] -= 1
                     else:
                         ranks[i][posicao_jogada] +=1
-                        break   
+            elif opcao ==3 or opcao == 5:
+                if (i%2 !=0):
+                    if vetorAtual[10] == 1:
+                        ranks[i][posicao_jogada] += 1
+                    elif vetorAtual[10] == 2:
+                        ranks[i][posicao_jogada] -= 1
+                    else:
+                        ranks[i][posicao_jogada] +=1
 
+            elif opcao ==1:
+                    if (i%2 ==0):
+                        if vetorAtual[10] == 1:
+                            ranks[i][posicao_jogada] += 1
+                        elif vetorAtual[10] == 2:
+                            ranks[i][posicao_jogada] -= 2
+                        else:
+                            ranks[i][posicao_jogada] +=1
+                    else:
+                        if vetorAtual[10] == 2:
+                            ranks[i][posicao_jogada] += 1
+                        elif vetorAtual[10] == 1:
+                            ranks[i][posicao_jogada] -= 2
+                        else:
+                            ranks[i][posicao_jogada] +=1
+
+            ranks[i][posicao_jogada] = max(-10, min(10, ranks[i][posicao_jogada]))
+            
+            
 def jogador_inteligente(vetorAtual, ranks):
-
     if vetorAtual[11] == 0:
         melhor_jogada = jogada_aleatoria(vetorAtual)
         return melhor_jogada
@@ -217,34 +239,11 @@ def jogador_invencivel(vetor, jogador):
         if vetor[i] == -1:
             return i
             
-    
     #n tem jogada pra ganhar/bloq
     return jogada_aleatoria(vetor)
 
 jogo_da_velha(vetorAtual)
-
-
-
-""" for index, jogo in enumerate(todosJogos):
-    print(f"### Jogo {index + 1}:")
-    print(f"- Rank: {jogo[1]}")
-    
-    for jogada_num, jogada in enumerate(jogo[2]):
-        jogada_formatada = ', '.join(map(str, jogada))
-        print(f"   {jogada_num + 1}. [{jogada_formatada}]")
-    print("-"*50) """
- 
 print(vetorAtual)
 print("-----------")
 print(ranks)
 print("------------")
-print("------------")
-
-
-""" for jogos in todosJogos:
-    for jogo in jogos:
-        print(jogo)
-    print("*--------------*--------------") """
-
-            
- 
