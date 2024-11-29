@@ -74,23 +74,23 @@ def jogo_da_velha(vetorAtual):
                     vetorAtual[1][posicao] = 2
                     jogador = 2                
             if (opcao == 4):
-                if (vetorAtual[0] % 2 == 0):
+                if (vetorAtual[0] % 2 != 0):
                     posicao = jogador_inteligente(vetorAtual, jogadas_utilizadas)
-                    vetorAtual[posicao] = 1
+                    vetorAtual[1][posicao] = 1
                     jogador = 1
                 else:
                     posicao = jogador_invencivel(vetorAtual, 2)
-                    vetorAtual[posicao] = 2
+                    vetorAtual[1][posicao] = 2
                     jogador = 2
             if (opcao == 5):
                 if (vetorAtual[0] % 2 == 0):
-                    posicao = jogador_invencivel(vetorAtual, 2)
-                    vetorAtual[posicao] = 2
-                    jogador = 2
-                else:
                     posicao= jogador_inteligente(vetorAtual, jogadas_utilizadas)
-                    vetorAtual[posicao] = 1
+                    vetorAtual[1][posicao] = 1
                     jogador = 1
+                else:
+                    posicao = jogador_invencivel(vetorAtual, 2)
+                    vetorAtual[1][posicao] = 2
+                    jogador = 2
             
             jogar = vencedor(vetorAtual, jogador)
             vetorJogadas.append([vetorAtual[1].copy(), vetorAtual[3],vetorAtual[7], posicao, ids_vetorJogadas]) 
@@ -134,10 +134,10 @@ def atualizar_rank(vetorAtual, vetorJogadas, jogadas_utilizadas, opcao):
             j, i = jogada
             if i is not None and j is not None:
                 
-                if vetorAtual[2] == 1:
-                    todos_jogos[j][i][2] += 2
+                if vetorAtual[2] == 1:         
+                    todos_jogos[j][i][2] += 1
                 elif vetorAtual[2] == 2:
-                    todos_jogos[j][i][2] -= 2
+                    todos_jogos[j][i][2] -= 1
                 else:
                     todos_jogos[j][i][2] += 1
 
@@ -232,16 +232,16 @@ def jogador_invencivel(vetorAtual, jogador):
     vetor = vetorAtual[1]
     adversario = 2 if jogador == 1 else 1
 
-    if vetor[0] == 0 and jogador == 1:
+    if vetorAtual[0] == 0 and jogador == 1:
         return 1
         
-    if vetor[0] == 2 and jogador == 1:
-        for i in [3, 7, 9]:
+    if vetorAtual[0] == 2 and jogador == 1:
+        for i in [2, 6, 8]:
             if vetor[i] == -1:
                 return i #retornando posicao    
             
     # verifica se O poDe GANHAR
-    for i in range(1, 10):
+    for i in range(0, 9):
         if vetor[i] == -1:
             vetor[i] = jogador
             if not vencedor(vetor, jogador, simulacao=True):
@@ -249,17 +249,17 @@ def jogador_invencivel(vetorAtual, jogador):
             vetor[i] = -1 
 
     # Verifica se X pode ganhar
-    for i in range(1, 10):
+    for i in range(0, 9):
         if vetor[i] == -1:
             vetor[i] = adversario  # Simula jogadas
             if not vencedor(vetor, adversario, simulacao=True):  # Se x vencer    
                 return i# bloqueia o 2
             vetor[i] = -1  #restaura por conta da simulacao
 
-    if vetor[0] == 4 and vetor[5] == -1:
+    if vetorAtual[0] == 4 and vetor[4] == -1:
         return 5
     
-    cantos = [1, 3, 7, 9] #priorizar cantos
+    cantos = [0, 2, 6, 8] #priorizar cantos
     for i in cantos:
         if vetor[i] == -1:
             return i
